@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gesture 3D City Builder</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     LOADING SCREEN
+═══════════════════════════════════════════════════════ -->
+<div id="loading-screen">
+  <div class="loader-content">
+    <div class="loader-logo">🏙️</div>
+    <h1 class="loader-title">GESTURE 3D BUILDER</h1>
+    <div class="loader-bar-container">
+      <div class="loader-bar" id="loader-bar"></div>
+    </div>
+    <p class="loader-text" id="loader-text">Initializing systems...</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════ -->
+<header id="main-header">
+  <div class="header-left">
+    <span class="logo-icon">🏗️</span>
+    <span class="logo-text">GESTURE 3D BUILDER</span>
+    <span class="version-badge">v2.0</span>
+  </div>
+  <div class="header-center">
+    <div class="status-indicators">
+      <div class="status-dot" id="ws-status" title="WebSocket"></div>
+      <span class="status-label" id="ws-label">Connecting...</span>
+      <div class="status-dot ml-20" id="cam-status" title="Camera"></div>
+      <span class="status-label" id="cam-label">Camera Off</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span id="user-count-display">👥 0 online</span>
+    <span id="session-display">Session: --</span>
+    <button class="btn-icon" id="btn-share" title="Share Session">🔗</button>
+    <button class="btn-icon" id="btn-fullscreen" title="Fullscreen">⛶</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN LAYOUT
+═══════════════════════════════════════════════════════ -->
+<main id="main-layout">
+
+  <!-- ── LEFT PANEL ── -->
+  <aside id="left-panel" class="panel">
+    
+    <!-- Building Types -->
+    <div class="panel-section">
+      <h3 class="panel-title">🏢 Building Types</h3>
+      <div class="building-grid" id="building-type-grid">
+        <div class="building-card active" data-type="skyscraper">
+          <div class="building-preview btype-skyscraper"></div>
+          <span>Skyscraper</span>
+        </div>
+        <div class="building-card" data-type="office">
+          <div class="building-preview btype-office"></div>
+          <span>Office</span>
+        </div>
+        <div class="building-card" data-type="residential">
+          <div class="building-preview btype-residential"></div>
+          <span>Residential</span>
+        </div>
+        <div class="building-card" data-type="tower">
+          <div class="building-preview btype-tower"></div>
+          <span>Tower</span>
+        </div>
+        <div class="building-card" data-type="dome">
+          <div class="building-preview btype-dome"></div>
+          <span>Dome</span>
+        </div>
+        <div class="building-card" data-type="pyramid">
+          <div class="building-preview btype-pyramid"></div>
+          <span>Pyramid</span>
+        </div>
+        <div class="building-card" data-type="warehouse">
+          <div class="building-preview btype-warehouse"></div>
+          <span>Warehouse</span>
+        </div>
+        <div class="building-card" data-type="stadium">
+          <div class="building-preview btype-stadium"></div>
+          <span>Stadium</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Color Palette -->
+    <div class="panel-section">
+      <h3 class="panel-title">🎨 Color</h3>
+      <div class="color-grid">
+        <div class="color-swatch active" style="background:#4a90e2" data-color="#4a90e2"></div>
+        <div class="color-swatch" style="background:#e74c3c" data-color="#e74c3c"></div>
+        <div class="color-swatch" style="background:#2ecc71" data-color="#2ecc71"></div>
+        <div class="color-swatch" style="background:#f39c12" data-color="#f39c12"></div>
+        <div class="color-swatch" style="background:#9b59b6" data-color="#9b59b6"></div>
+        <div class="color-swatch" style="background:#1abc9c" data-color="#1abc9c"></div>
+        <div class="color-swatch" style="background:#e67e22" data-color="#e67e22"></div>
+        <div class="color-swatch" style="background:#ecf0f1" data-color="#ecf0f1"></div>
+        <div class="color-swatch" style="background:#34495e" data-color="#34495e"></div>
+        <div class="color-swatch" style="background:#ff6b6b" data-color="#ff6b6b"></div>
+        <div class="color-swatch" style="background:#ffd93d" data-color="#ffd93d"></div>
+        <div class="color-swatch" style="background:#6bcb77" data-color="#6bcb77"></div>
+      </div>
+      <input type="color" id="custom-color" value="#4a90e2" class="custom-color-input" />
+    </div>
+
+    <!-- Floor Control -->
+    <div class="panel-section">
+      <h3 class="panel-title">📐 Floors: <span id="floor-count-display">10</span></h3>
+      <input type="range" id="floor-slider" min="1" max="50" value="10" class="slider" />
+    </div>
+
+    <!-- Stats -->
+    <div class="panel-section">
+      <h3 class="panel-title">📊 Stats</h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-value" id="stat-buildings">0</span>
+          <span class="stat-label">Buildings</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-gestures">0</span>
+          <span class="stat-label">Gestures</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-fps">60</span>
+          <span class="stat-label">FPS</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="stat-users">1</span>
+          <span class="stat-label">Users</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cities -->
+    <div class="panel-section">
+      <h3 class="panel-title">🏙️ Cities</h3>
+      <div id="cities-list" class="cities-list"></div>
+      <button class="btn-full" id="btn-new-city">+ New City</button>
+    </div>
+
+  </aside>
+
+  <!-- ── 3D VIEWPORT ── -->
+  <div id="viewport-container">
+    <canvas id="three-canvas"></canvas>
+    
+    <!-- Gesture Overlay -->
+    <div id="gesture-overlay">
+      <div id="gesture-indicator" class="gesture-none">
+        <span id="gesture-icon">🤚</span>
+        <span id="gesture-name">No Gesture</span>
+        <div class="confidence-bar">
+          <div class="confidence-fill" id="confidence-fill"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Cursor Preview -->
+    <div id="cursor-preview"></div>
+    
+    <!-- Multi-user cursors -->
+    <div id="multi-cursors-container"></div>
+    
+    <!-- Viewport Tools -->
+    <div id="viewport-tools">
+      <button class="vp-btn active" id="btn-place-mode" title="Place Mode">✏️</button>
+      <button class="vp-btn" id="btn-select-mode" title="Select Mode">🖱️</button>
+      <button class="vp-btn" id="btn-delete-mode" title="Delete Mode">🗑️</button>
+      <hr class="vp-divider" />
+      <button class="vp-btn" id="btn-zoom-in" title="Zoom In">🔍+</button>
+      <button class="vp-btn" id="btn-zoom-out" title="Zoom Out">🔍-</button>
+      <button class="vp-btn" id="btn-reset-cam" title="Reset Camera">🎯</button>
+      <hr class="vp-divider" />
+      <button class="vp-btn" id="btn-top-view" title="Top View">⬆️</button>
+      <button class="vp-btn" id="btn-iso-view" title="Isometric">🔲</button>
+    </div>
+
+    <!-- Undo/Redo -->
+    <div id="undo-redo-bar">
+      <button class="ur-btn" id="btn-undo" title="Undo (Ctrl+Z)">↩️ Undo</button>
+      <button class="ur-btn" id="btn-redo" title="Redo (Ctrl+Y)">↪️ Redo</button>
+      <button class="ur-btn danger" id="btn-clear" title="Clear All">🗑️ Clear</button>
+    </div>
+    
+    <!-- Grid Toggle -->
+    <div id="grid-toggle-bar">
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-grid" checked />
+        <span class="toggle-slider"></span>
+      </label>
+      <span>Grid</span>
+      <label class="toggle-switch ml-10">
+        <input type="checkbox" id="toggle-shadows" checked />
+        <span class="toggle-slider"></span>
+      </label>
+      <span>Shadows</span>
+      <label class="toggle-switch ml-10">
+        <input type="checkbox" id="toggle-wireframe" />
+        <span class="toggle-slider"></span>
+      </label>
+      <span>Wireframe</span>
+    </div>
+
+    <!-- Mini Map -->
+    <canvas id="mini-map" width="150" height="150"></canvas>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <aside id="right-panel" class="panel">
+    
+    <!-- Camera Controls -->
+    <div class="panel-section">
+      <h3 class="panel-title">📷 Camera</h3>
+      <div id="camera-preview-container">
+        <video id="camera-video" autoplay muted playsinline></video>
+        <canvas id="gesture-canvas"></canvas>
+        <div id="camera-placeholder">
+          <span class="cam-icon">📷</span>
+          <p>Camera Off</p>
+        </div>
+      </div>
+      <button class="btn-full mt-8" id="btn-toggle-cam">
+        <span id="cam-btn-text">🎥 Enable Camera</span>
+      </button>
+      <div class="gesture-settings mt-8">
+        <label>Confidence: <span id="conf-value">70%</span></label>
+        <input type="range" id="confidence-slider" min="40" max="95" value="70" class="slider" />
+        <label class="mt-4">
+          <input type="checkbox" id="gesture-enabled" checked />
+          Gesture Control
+        </label>
+      </div>
+    </div>
+
+    <!-- Gesture Guide -->
+    <div class="panel-section">
+      <h3 class="panel-title">👋 Gesture Guide</h3>
+      <div class="gesture-guide">
+        <div class="gesture-item">
+          <span class="gesture-emoji">🖐️</span>
+          <div>
+            <strong>Open Palm</strong>
+            <p>Place Building</p>
+          </div>
+        </div>
+        <div class="gesture-item">
+          <span class="gesture-emoji">✊</span>
+          <div>
+            <strong>Fist</strong>
+            <p>Delete Building</p>
+          </div>
+        </div>
+        <div class="gesture-item">
+          <span class="gesture-emoji">🤏</span>
+          <div>
+            <strong>Pinch</strong>
+            <p>Grab & Move</p>
+          </div>
+        </div>
+        <div class="gesture-item">
+          <span class="gesture-emoji">✌️</span>
+          <div>
+            <strong>Peace Sign</strong>
+            <p>Change Type</p>
+          </div>
+        </div>
+        <div class="gesture-item">
+          <span class="gesture-emoji">👍</span>
+          <div>
+            <strong>Thumbs Up</strong>
+            <p>Save Scene</p>
+          </div>
+        </div>
+        <div class="gesture-item">
+          <span class="gesture-emoji">🤚🤚</span>
+          <div>
+            <strong>Two Hand Spread</strong>
+            <p>Scale Building</p>
+          </div>
+        </div>
+        <div class="gesture-item">
+          <span class="gesture-emoji">🤌</span>
+          <div>
+            <strong>Three Fingers</strong>
+            <p>Rotate</p>
+          </div>
+        </div>
+        <div class="gesture-item">
+          <span class="gesture-emoji">☝️☝️</span>
+          <div>
+            <strong>Two Point</strong>
+            <p>Orbit Camera</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selected Building -->
+    <div class="panel-section" id="selected-panel" style="display:none">
+      <h3 class="panel-title">🏗️ Selected Building</h3>
+      <div class="property-grid">
+        <label>X</label>
+        <input type="number" id="prop-x" class="prop-input" step="0.5" />
+        <label>Y</label>
+        <input type="number" id="prop-y" class="prop-input" step="0.5" />
+        <label>Z</label>
+        <input type="number" id="prop-z" class="prop-input" step="0.5" />
+        <label>Scale</label>
+        <input type="number" id="prop-scale" class="prop-input" step="0.1" min="0.1" max="10" />
+        <label>Rotation</label>
+        <input type="number" id="prop-rot" class="prop-input" step="15" />
+        <label>Floors</label>
+        <input type="number" id="prop-floors" class="prop-input" min="1" max="100" />
+      </div>
+      <button class="btn-full danger mt-8" id="btn-delete-selected">🗑️ Delete</button>
+      <button class="btn-full mt-4" id="btn-duplicate-selected">📋 Duplicate</button>
+    </div>
+
+    <!-- Chat -->
+    <div class="panel-section">
+      <h3 class="panel-title">💬 Chat</h3>
+      <div id="chat-messages"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200" />
+        <button id="btn-send-chat">Send</button>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="panel-section">
+      <h3 class="panel-title">⚡ Actions</h3>
+      <button class="btn-full success" id="btn-save">💾 Save City</button>
+      <button class="btn-full mt-4" id="btn-load">📂 Load City</button>
+      <button class="btn-full mt-4" id="btn-export">📤 Export JSON</button>
+      <button class="btn-full mt-4" id="btn-screenshot">📸 Screenshot</button>
+    </div>
+
+  </aside>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════════════ -->
+
+<!-- Save Modal -->
+<div class="modal-overlay" id="modal-save">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>💾 Save City</h2>
+      <button class="modal-close" data-modal="modal-save">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>City Name</label>
+      <input type="text" id="save-city-name" placeholder="My Awesome City" class="modal-input" />
+      <label class="mt-8">Description</label>
+      <textarea id="save-city-desc" placeholder="Describe your city..." class="modal-textarea"></textarea>
+      <label class="mt-8">City ID (0 = create new)</label>
+      <input type="number" id="save-city-id" value="1" class="modal-input" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" data-modal="modal-save">Cancel</button>
+      <button class="btn-modal-confirm" id="btn-confirm-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Load Modal -->
+<div class="modal-overlay" id="modal-load">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📂 Load City</h2>
+      <button class="modal-close" data-modal="modal-load">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="load-cities-list" class="load-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" data-modal="modal-load">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal-overlay" id="modal-share">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🔗 Share Session</h2>
+      <button class="modal-close" data-modal="modal-share">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>Share this link to collaborate:</p>
+      <div class="share-url-box">
+        <input type="text" id="share-url-input" readonly class="modal-input" />
+        <button id="btn-copy-url">📋 Copy</button>
+      </div>
+      <p class="mt-8">Session ID:</p>
+      <div class="session-id-display" id="share-session-id">--</div>
+      <p class="hint">Up to 10 users can join this session</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" data-modal="modal-share">Close</button>
+      <button class="btn-modal-confirm" id="btn-create-session">Create New Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notification -->
+<div id="notification" class="notification hidden">
+  <span id="notification-icon">ℹ️</span>
+  <span id="notification-text">Notification</span>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/websocket.js"></script>
+<script src="js/gestures.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
