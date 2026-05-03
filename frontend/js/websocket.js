@@ -16,7 +16,7 @@ const WSClient = (() => {
   let messageHandlers = new Map();
   let connectionCallbacks = [];
 
-  const SERVER_URL = `ws://${window.location.hostname}:8000`;
+  const SERVER_URL = `wss://gesture-3d-builder.onrender.com`;
 
   // ─── Connect ─────────────────────────────────────────────────────────────────
 
