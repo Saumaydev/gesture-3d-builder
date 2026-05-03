@@ -221,7 +221,7 @@ const WSClient = (() => {
 
   async function apiGet(path) {
     try {
-      const res = await fetch(`http://${window.location.hostname}:8000${path}`);
+      const res = await fetch(`https://gesture-3d-builder.onrender.com${path}`);
       return await res.json();
     } catch (e) {
       console.error(`API GET ${path} failed:`, e);
@@ -231,7 +231,7 @@ const WSClient = (() => {
 
   async function apiPost(path, data) {
     try {
-      const res = await fetch(`http://${window.location.hostname}:8000${path}`, {
+      const res = await fetch(`https://gesture-3d-builder.onrender.com${path}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -245,7 +245,7 @@ const WSClient = (() => {
 
   async function apiDelete(path) {
     try {
-      const res = await fetch(`http://${window.location.hostname}:8000${path}`, {
+      const res = await fetch(`https://gesture-3d-builder.onrender.com${path}`, {
         method: 'DELETE'
       });
       return await res.json();
@@ -284,7 +284,7 @@ const WSClient = (() => {
 
   async function processGestureFrame(frameData, sessionId, userId) {
     try {
-      const res = await fetch(`http://${window.location.hostname}:8000/api/gesture/process`, {
+     const res = await fetch(`https://gesture-3d-builder.onrender.com/api/gesture/process`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
